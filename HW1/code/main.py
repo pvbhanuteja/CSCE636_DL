@@ -47,7 +47,19 @@ def visualize_result(X, y, W):
 		in submission.
 	'''
 	### YOUR CODE HERE
-
+    one_labels = X[np.where(y==1)]
+    minusone_labels = X[np.where(y==-1)]
+    plt.scatter(one_labels[:,0], one_labels[:,1], c="g", alpha=1, marker="o",label="1 Lables")
+    plt.scatter(minusone_labels[:,0], minusone_labels[:,1], c="r", alpha=1, marker="+",label="-1 Lables")
+    xa = np.arange(np.max(X[:,0]))
+    print('xa',xa)
+    m = -W[1]/W[2]
+    c = -W[0]/W[2]
+    plt.plot(xa, m * xa + c )
+    plt.xlabel("Feature 1(Symmentry)")
+    plt.ylabel("Feature 2(Avg. Intensity)")
+    plt.legend(loc='lower right')
+    plt.show()
 	### END YOUR CODE
 
 def visualize_result_multi(X, y, W):
@@ -68,7 +80,7 @@ def visualize_result_multi(X, y, W):
     plt.scatter(one_labels[:,0], one_labels[:,1], c="g", alpha=1, marker="o",label="1 Lables")
     plt.scatter(two_labels[:,0], two_labels[:,1], c="r", alpha=1, marker="+",label="2 Lables")
     plt.scatter(zero_labels[:,0], zero_labels[:,1], c="b", alpha=1, marker="+",label="0 Lables")
-    
+
     plt.xlabel("Feature 1(Symmentry)")
     plt.ylabel("Feature 2(Avg. Intensity)")
     plt.legend(loc='lower right')
