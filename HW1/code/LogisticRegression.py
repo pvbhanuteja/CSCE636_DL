@@ -10,6 +10,7 @@ class logistic_regression(object):
         self.learning_rate = learning_rate
         self.max_iter = max_iter
 
+
     def fit_GD(self, X, y):
         """Train perceptron model on data (X,y) with GD.
 
@@ -23,7 +24,10 @@ class logistic_regression(object):
         n_samples, n_features = X.shape
 
 		### YOUR CODE HERE
-        weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
+        np.random.seed(42)
+        # weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
+        weights = np.zeros(n_features)
+        
         self.assign_weights(weights)
         for i in range(self.max_iter):
             w_error = 0
@@ -45,10 +49,11 @@ class logistic_regression(object):
         Returns:
             self: Returns an instance of self.
         """
-		### YOUR CODE HERE
         n_samples, n_features = X.shape
 		### YOUR CODE HERE
-        weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
+        # np.random.seed(42)
+        # weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
+        weights = np.zeros(n_features)
         self.assign_weights(weights)
         for i in range(self.max_iter):
             # w_error = 0
@@ -59,11 +64,28 @@ class logistic_regression(object):
             #     w_error = w_error+_g
             # self.W = self.W + self.learning_rate*(-1*w_error/batch_size)
             for j in range(0,n_samples,batch_size):
+                if i == 1 and j == batch_size:
+                    pass
+                    # Wrote this condiditon for 5th quesion
+                    # print('Weights after first epoch', self.W)
                 w_error = 0
-                for k in range(batch_size): #compute error over all batch
-                    _g = self._gradient(X[j+k],y[j+k])
-                    w_error = w_error+_g
-                self.W = self.W + self.learning_rate*(-1*w_error/batch_size)
+                if n_samples%batch_size != 0 and j/batch_size == int(n_samples/batch_size):
+                    for k in range(batch_size*j,n_samples):
+                        _g = self._gradient(X[k],y[k])
+                        w_error = w_error+_g
+                    self.W = self.W + self.learning_rate*(-1*w_error/(n_samples-batch_size*j))
+                else:
+                    for k in range(batch_size): #compute error over all batch
+                        _g = self._gradient(X[j+k],y[j+k])
+                        w_error = w_error+_g
+                    self.W = self.W + self.learning_rate*(-1*w_error/batch_size)
+                    
+                if np.linalg.norm(w_error*1./batch_size) < 0.0005:
+                    print('breaking from loop convergence condition reached ', i, ' value :',np.linalg.norm(w_error*1./batch_size))
+                    break
+            else:
+                continue
+            break
 		### END YOUR CODE
             
         return self
@@ -80,8 +102,9 @@ class logistic_regression(object):
         """
 		### YOUR CODE HERE
         n_samples, n_features = X.shape
-        
-        weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
+        np.random.seed(42)
+        weights = np.zeros(n_features)
+        # weights = np.random.normal(0, 0.1, n_features) # 0 mean and 0.1 sigma
         self.assign_weights(weights)
         for i in range(self.max_iter):
             random_sample_pos = np.random.randint(low=0, high=n_samples-1)
@@ -156,7 +179,7 @@ class logistic_regression(object):
                 predictions[i] = 1
             else:
                 predictions[i] = -1
-        print("Uniques->",np.unique(predictions, return_counts=True))
+        #print("Uniques->",np.unique(predictions, return_counts=True))
         return predictions
 		### END YOUR CODE
 

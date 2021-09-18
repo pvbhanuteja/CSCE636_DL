@@ -82,11 +82,11 @@ def prepare_y(raw_y):
         idx:return idx for data label 1 and 2.
     """
     y = raw_y
-    # print(raw_y)
     idx = np.where((raw_y==1) | (raw_y==2))
     y[np.where(raw_y==0)] = 0
     y[np.where(raw_y==1)] = 1
     y[np.where(raw_y==2)] = 2
+    
     # print("y \n\n",y,'\n\n ids',idx)
     return y, idx
 

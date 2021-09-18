@@ -17,7 +17,7 @@ class logistic_regression_multiclass(object):
     def __init__(self, learning_rate, max_iter, k):
         self.learning_rate = learning_rate
         self.max_iter = max_iter
-        self.k = k 
+        self.k = k
         
     def fit_BGD(self, X, labels, batch_size):
         """Train perceptron model on data (X,y) with BGD.
@@ -36,18 +36,33 @@ class logistic_regression_multiclass(object):
 		### YOUR CODE HERE
         print(labels)
         onehotlabels = np.eye(np.max(labels.astype(int))+1)[labels.astype(int)]
-        self.W = 0.001*np.random.randn(X.shape[1],self.k)
-
+        np.random.seed(42)
+        # self.W = 0.001*np.random.randn(X.shape[1],self.k)
+        self.W = np.zeros((X.shape[1],self.k))
         n_samples, n_features = X.shape
         for i in range(self.max_iter):
             for j in range(0,n_samples,batch_size):
+                if i ==1 and j == batch_size:
+                    print('Weights after first epoch', self.W)
                 # print(self.W)
-                w_error = 0
-                for k in range(batch_size): #compute error over all batch
-                    _g = self._gradient(X[j+k],onehotlabels[j+k])
-                    # print(_g)
-                    w_error = w_error+_g
-                self.W = self.W + self.learning_rate*(-1*w_error/batch_size)
+                _g_total = 0
+                if n_samples%batch_size != 0 and j/batch_size == int(n_samples/batch_size):
+                    for k in range(batch_size*j,n_samples):
+                        _g = self._gradient(X[k],onehotlabels[k])
+                        _g_total = _g_total+_g
+                    self.W = self.W + self.learning_rate*(-1*_g_total/(n_samples-batch_size*j))
+                else:
+                    for k in range(batch_size): #compute error over all batch
+                        _g = self._gradient(X[j+k],onehotlabels[j+k])
+                        _g_total = _g_total+_g
+                    self.W = self.W + self.learning_rate*(-1*_g_total/batch_size)
+                    # print(f'''iteartion {i} { np.linalg.norm(_g_total*1./batch_size)}''')
+                if np.linalg.norm(_g_total*1./batch_size) < 0.0005:
+                    print('breaking from loop convergence condition reached', i, ' value :',np.linalg.norm(_g_total*1./batch_size))
+                    break
+            else:
+                continue
+            break
         # print('onehotlabels',onehotlabels)
 		### END YOUR CODE
     
@@ -106,7 +121,7 @@ class logistic_regression_multiclass(object):
 		### YOUR CODE HERE
         predict = self.softmax((X@self.W).T)
         preds = np.argmax(predict,axis=0)
-        print (predict,predict.shape)
+        # print (predict,predict.shape)
         return preds
 		### END YOUR CODE
 
