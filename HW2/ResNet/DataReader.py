@@ -4,6 +4,10 @@ import numpy as np
 
 """ This script implements the functions for reading data.
 """
+def loadpickle(path):
+    with open(path, 'rb') as file:
+        data = pickle.load(file,encoding='bytes')
+    return data
 
 def load_data(data_dir):
     """ Load the CIFAR-10 dataset.
@@ -22,9 +26,22 @@ def load_data(data_dir):
         (dtype=np.int32)
     """
     ### YOUR CODE HERE
-
+    meta_data_dict = loadpickle(data_dir+'/batches.meta')
+    cifar_train_data = np.empty((0,3072))
+    cifar_train_labels = []
+    for i in range(1, 6):
+        cifar_train_data_dict = loadpickle(data_dir + "/data_batch_{}".format(i))
+        cifar_train_data = np.vstack((cifar_train_data, cifar_train_data_dict[b'data']))
+        cifar_train_labels += cifar_train_data_dict[b'labels']
+    print(meta_data_dict)
+    cifar_test_data_dict = loadpickle(data_dir + "/test_batch")
+    cifar_test_data = cifar_test_data_dict[b'data']
+    cifar_test_labels = cifar_test_data_dict[b'labels']
+    x_train = cifar_train_data
+    y_train = np.array(cifar_train_labels)
+    x_test = cifar_test_data
+    y_test = np.array(cifar_test_labels)
     ### YOUR CODE HERE
-
     return x_train, y_train, x_test, y_test
 
 def train_vaild_split(x_train, y_train, split_index=45000):
@@ -48,3 +65,7 @@ def train_vaild_split(x_train, y_train, split_index=45000):
     y_valid = y_train[split_index:]
 
     return x_train_new, y_train_new, x_valid, y_valid
+
+# if __name__ == '__main__':
+#     xtr,ytr,xte,yte = load_data(data_dir='ResNet\cifar-10-python\cifar-10-batches-py')
+#     print(xtr.shape,ytr.shape,xte.shape,yte.shape)
